@@ -1,104 +1,67 @@
-var express = require("express");
-var path = require("path");
-var fs = require("fs")
+//dependencies
+const fs = require("fs");
+const express = require("express");
+const path = require("path");
 
 // Sets up the Express App
-// =============================================================
-var app = express();
-var PORT = process.env.PORT || 3000;
+const app = express();
+// Sets port for listening and let heroku decide on port, if not, use port 8080
+const PORT = process.env.PORT || 8000;
 
-// Sets up the Express app to handle data parsing
+//serve images, CSS files, and JavaScript files in a directory named public
+app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static("public"));
 
-// HTML Routes
-// =============================================================
-
-// Basic route that sends the user first to the AJAX Page
-app.get("/", function (req, res) {
-  res.sendFile(path.join(__dirname, "/public/index.html"));
+//route to notes.html
+app.get("/notes", (req, res) => {
+    res.sendFile(path.join(__dirname, "/public/notes.html"));
 });
 
-app.get("/notes", function (req, res) {
-  res.sendFile(path.join(__dirname, "/public/notes.html"));
-
+//route to read the `db.json` file and return all saved notes as JSON.
+app.get("/api/notes", (req, res) => {
+    res.sendFile(path.join(__dirname, "/db/db.json"));
 });
 
-app.post("/api/notes", function (req, res) {
-  fs.readFile(__dirname + "/db/db.json", 'utf8', function (error, notes) {
-    if (error) {
-      return console.log(error)
-    }
-    notes = JSON.parse(notes)
+//route to index.html aka main page
 
-    var id = notes[notes.length - 1].id + 1
-    var newNote = { title: req.body.title, text: req.body.text, id: id }
-    var activeNote = notes.concat(newNote)
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "/public/index.html"));
+});
 
-    fs.writeFile(__dirname + "/db/db.json", JSON.stringify(activeNote), function (error, data) {
-      if (error) {
-        return error
-      }
-      console.log(activeNote)
-      res.json(activeNote);
-    })
-  })
+//receive a new note to save on the request body, add it to the `db.json` file, 
+//and then return the new note to the client.
+app.post("/api/notes", (req, res) => {
+    let newNote = req.body;
+    let noteList = JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
+    let notelength = (noteList.length).toString();
+
+    //create new property called id based on length and assign it to each json object
+    newNote.id = notelength;
+    //push updated note to the data containing notes history in db.json
+    noteList.push(newNote);
+
+    //write the updated data to db.json
+    fs.writeFileSync("./db/db.json", JSON.stringify(noteList));
+    res.json(noteList);
 })
 
-// Pull from db.json
-app.get("/api/notes", function (req, res) {
-  fs.readFile(__dirname + "/db/db.json", 'utf8', function (error, data) {
-    if (error) {
-      return console.log(error)
-    }
-    console.log("This is Notes", data)
-    res.json(JSON.parse(data))
-  })
+//delete note according to their tagged id.
+app.delete("/api/notes/:id", (req, res) => {
+    let noteList = JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
+    let noteId = (req.params.id).toString();
+
+    //filter all notes that does not have matching id and saved them as a new array
+    //the matching array will be deleted
+    noteList = noteList.filter(selected =>{
+        return selected.id != noteId;
+    })
+
+    //write the updated data to db.json and display the updated note
+    fs.writeFileSync("./db/db.json", JSON.stringify(noteList));
+    res.json(noteList);
 });
 
-app.delete("/api/notes/:id", function (req, res) {
-  const noteId = JSON.parse(req.params.id)
-  console.log(noteId)
-  fs.readFile(__dirname + "/db/db.json", 'utf8', function (error, notes) {
-    if (error) {
-      return console.log(error)
-    }
-    notes = JSON.parse(notes)
 
-    notes = notes.filter(val => val.id !== noteId)
-
-    fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notes), function (error, data) {
-      if (error) {
-        return error
-      }
-      res.json(notes)
-    })
-  })
-})
-
-app.put("/api/notes/:id", function(req, res) {
-  const noteId = JSON.parse(req.params.id)
-  console.log(noteId)
-  fs.readFile(__dirname + "db/db.json", "utf8", function(error, notes) {
-    if (error ){
-      return console.log(error)
-    }
-    notes.JSONparse(notes)
-
-    notes = notes.filter(val => val.id !== noteId)
-
-    fs.writeFile(__dirname +"db/db.json", JSON.stringify(notes), function (error, data) {
-      if (error) {
-        return error
-      }
-      res.json(notes)
-    })
-  })
-})
-
-// Starts the server to begin listening
-// =============================================================
-app.listen(PORT, function () {
-  console.log("App listening on PORT " + PORT);
-});
+//listen tot he port when deployed
+app.listen(PORT, () => console.log("Server listening on port " + PORT));

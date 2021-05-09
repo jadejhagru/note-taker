@@ -1,4 +1,3 @@
-  
 html, body {
   height: 100%;
   margin: 0;
@@ -68,8 +67,4 @@ html, body {
   border-right: none;
   padding: 20px;
   cursor: pointer;
-}
-.penStyle {
-  padding-right: 10px;
-  color: lightseagreen !important;
 }

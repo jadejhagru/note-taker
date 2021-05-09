@@ -32,21 +32,13 @@ var deleteNote = function(id) {
   });
 };
 
-var editNote = function(id) {
-  return $.ajax({
-    url: "api/notes/" + id,
-    method: "PUT"
-  })
-};
-
 // If there is an activeNote, display it, otherwise render empty inputs
 var renderActiveNote = function() {
-  console.log("got here active note")
-  // $saveNoteBtn.hide();
+  $saveNoteBtn.hide();
 
   if (activeNote.id) {
-    // $noteTitle.attr("readonly", true);
-    // $noteText.attr("readonly", true);
+    $noteTitle.attr("readonly", true);
+    $noteText.attr("readonly", true);
     $noteTitle.val(activeNote.title);
     $noteText.val(activeNote.text);
   } else {
@@ -70,28 +62,6 @@ var handleNoteSave = function() {
   });
 };
 
-var handleEdit = function (event) {
-  event.stopPropagation();
-  handleNoteView();
-  console.log("got here")
-  var note = $(this)
-    .parent(".list-group-item")
-    .data();
-
-    if (activeNote.id === note.id) {
-      activeNote = {
-        title: $noteTitle.val(),
-        text: $noteText.val()
-      };
-    }
-  editNote(note.id).then(function() {
-    saveNote(activeNote);
-    getAndRenderNotes();
-    renderActiveNote();
-  })
-    console.log(note)
-}
-
 // Delete the clicked note
 var handleNoteDelete = function(event) {
   // prevents the click listener for the list from being called when the button inside of it is clicked
@@ -113,7 +83,6 @@ var handleNoteDelete = function(event) {
 
 // Sets the activeNote and displays it
 var handleNoteView = function() {
-  console.log("isplaying it")
   activeNote = $(this).data();
   renderActiveNote();
 };
@@ -148,11 +117,8 @@ var renderNoteList = function(notes) {
     var $delBtn = $(
       "<i class='fas fa-trash-alt float-right text-danger delete-note'>"
     );
-    var $editBtn = $(
-      "<i class='penStyle fas fa-pen text-light edit-note float-right'>"
-    );
 
-    $li.append($span, $delBtn, $editBtn);
+    $li.append($span, $delBtn);
     noteListItems.push($li);
   }
 
@@ -167,7 +133,6 @@ var getAndRenderNotes = function() {
 };
 
 $saveNoteBtn.on("click", handleNoteSave);
-$noteList.on("click", ".edit-note", handleEdit);
 $noteList.on("click", ".list-group-item", handleNoteView);
 $newNoteBtn.on("click", handleNewNoteView);
 $noteList.on("click", ".delete-note", handleNoteDelete);
