@@ -10,3 +10,5 @@ This is a simple backend ExpressJS note taker application that can save and dele
 
 https://notetakerjnkjhfks.herokuapp.com/
 
+![screenshot](https://user-images.githubusercontent.com/77811320/117592696-905f8a80-b107-11eb-9fea-eba7c011c73d.jpg)
+
