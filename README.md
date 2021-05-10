@@ -1,10 +1,12 @@
 # Note-Taker Challenge
 
+![Repository](https://img.shields.io/badge/Repository-Github-orange)
+
 ## Description
 
-This is a simple ExpressJS note taker application that can save notes.
+This is a simple backend ExpressJS note taker application that can save and delete notes.
 
-This application is not completed as of yet but will be finished at a later date...
-It will be later deployed on Heroku
+## Deployed Link
 
-https://jadejhagru.github.io/note-taker/
+https://notetakerjnkjhfks.herokuapp.com/
+
